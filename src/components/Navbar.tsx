@@ -1,200 +1,213 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUpRight, Terminal, Sparkles, FileText } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Terminal } from 'lucide-react';
+import { gsap } from 'gsap';
+
+const NAV_ITEMS = [
+  { label: 'HOME', href: '#home' },
+  { label: 'ABOUT', href: '#about' },
+  { label: 'EXPERTISE', href: '#expertise' },
+  { label: 'PROJECTS', href: '#projects' },
+  { label: 'SHOWREEL', href: '#showreel' },
+  { label: 'SKILLS', href: '#skills' },
+  { label: 'EDUCATION', href: '#education' },
+  { label: 'CONTACT', href: '#contact' },
+];
 
 interface NavbarProps {
   onOpenTerminal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [progressWidth, setProgressWidth] = useState(0);
+  const logoRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 40);
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setScrolled(scrollY > 60);
+      setProgressWidth(docH > 0 ? (scrollY / docH) * 100 : 0);
 
-      // Scroll progress
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-      setScrollProgress(progress);
-
-      // Active section calculation
-      const sections = ['home', 'about', 'pillars', 'tech', 'uiux', 'ai', 'studio', 'projects', 'certificates', 'contact'];
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 160 && rect.bottom >= 160) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
+      // Active section detection
+      const sections = NAV_ITEMS.map((n) => n.href.replace('#', ''));
+      let current = 'home';
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 100) current = id;
+      });
+      setActiveSection(current);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { label: 'About', href: '#about', id: 'about' },
-    { label: '5 Pillars', href: '#pillars', id: 'pillars' },
-    { label: 'Technology', href: '#tech', id: 'tech' },
-    { label: 'UI/UX', href: '#uiux', id: 'uiux' },
-    { label: 'AI Lab', href: '#ai', id: 'ai' },
-    { label: 'Studio', href: '#studio', id: 'studio' },
-    { label: 'Projects', href: '#projects', id: 'projects' },
-    { label: 'Certificates', href: '#certificates', id: 'certificates' },
-    { label: 'Contact', href: '#contact', id: 'contact' },
-  ];
+  // Magnetic logo effect
+  useEffect(() => {
+    const el = logoRef.current;
+    if (!el) return;
+    const handleMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.2;
+      const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.2;
+      gsap.to(el, { x: dx, y: dy, duration: 0.4, ease: 'power2.out' });
+    };
+    const handleLeave = () => gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.4)' });
+    el.addEventListener('mousemove', handleMove);
+    el.addEventListener('mouseleave', handleLeave);
+    return () => {
+      el.removeEventListener('mousemove', handleMove);
+      el.removeEventListener('mouseleave', handleLeave);
+    };
+  }, []);
+
+  const handleNavClick = (href: string) => {
+    setMobileOpen(false);
+    const id = href.replace('#', '');
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <>
-      {/* Scroll Progress Bar */}
-      <div 
-        className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-brand-accent via-indigo-400 to-cyan-300 z-50 transition-all duration-75"
-        style={{ width: `${scrollProgress}%` }}
-        role="progressbar"
-        aria-valuenow={Math.round(scrollProgress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
+      {/* Scroll progress bar */}
+      <div
+        className="fixed top-0 left-0 h-[2px] z-[200] transition-all duration-100"
+        style={{ width: `${progressWidth}%`, background: 'linear-gradient(90deg, #38BDF8, #818CF8)' }}
       />
 
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-brand-bg/85 backdrop-blur-md border-b border-brand-border/70 py-3.5 shadow-2xl'
-            : 'bg-transparent py-5'
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+          scrolled
+            ? 'backdrop-blur-xl bg-[#080A0F]/80 border-b border-white/5 shadow-lg shadow-black/50'
+            : 'bg-transparent'
         }`}
+        style={{ marginTop: '2px' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Logo & Brand Identity */}
-          <a
-            href="#home"
-            className="flex items-center gap-3 group focus:outline-none"
-            aria-label="IAMGOKULVANAN Home"
-          >
-            <div className="w-10 h-10 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-center font-display font-extrabold text-brand-accent tracking-tighter group-hover:border-brand-accent/60 group-hover:shadow-cyan-soft transition-all">
-              GV
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-base tracking-wider text-white group-hover:text-brand-accent transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <a
+              ref={logoRef}
+              href="#home"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
+              className="flex items-center gap-2 group select-none"
+              aria-label="IAMGOKULVANAN Home"
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center font-display font-black text-sm text-brand-bg"
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #818CF8)' }}>
+                GV
+              </div>
+              <span className="font-display font-bold text-sm tracking-widest text-white opacity-80 group-hover:opacity-100 transition-opacity hidden sm:block">
                 IAMGOKULVANAN
               </span>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-brand-dim">
-                Tech Meets Creativity
-              </span>
-            </div>
-          </a>
+            </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-brand-surface/70 border border-brand-border/80 px-3 py-1.5 rounded-full backdrop-blur-md">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
-              return (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  className={`relative px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
-                    isActive
-                      ? 'text-white bg-brand-card shadow-sm border border-brand-border'
-                      : 'text-brand-muted hover:text-white hover:bg-brand-card/40'
-                  }`}
+            {/* Desktop nav */}
+            <nav className="hidden lg:flex items-center gap-1" role="navigation">
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.href.replace('#', '');
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                    className={`relative px-3 py-1.5 text-[11px] font-mono tracking-widest font-semibold transition-colors duration-200 ${
+                      isActive ? 'text-sky-300' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="navIndicator"
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-sky-400"
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                  </a>
+                );
+              })}
+            </nav>
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2">
+              {onOpenTerminal && (
+                <button
+                  onClick={onOpenTerminal}
+                  title="Open Developer Terminal"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/8 bg-white/5 text-slate-400 hover:text-sky-300 hover:border-sky-500/30 transition-all text-xs font-mono"
                 >
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-2 h-0.5 bg-brand-accent rounded-full" />
-                  )}
-                </a>
-              );
-            })}
-          </nav>
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span className="hidden md:block">CLI</span>
+                </button>
+              )}
 
-          {/* Action CTAs */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            {onOpenTerminal && (
-              <button
-                onClick={onOpenTerminal}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-brand-muted hover:text-brand-accent bg-brand-surface/70 border border-brand-border hover:border-brand-accent/40 transition-all"
-                title="Open Interactive Terminal"
-              >
-                <Terminal className="w-3.5 h-3.5 text-brand-accent" />
-                <span className="hidden md:inline">CLI</span>
-              </button>
-            )}
-
-            <a
-              href="#contact"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-brand-bg bg-brand-accent hover:bg-sky-300 transition-all shadow-cyan-soft hover:shadow-cyan-glow"
-            >
-              <span>Connect</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          {/* Mobile Menu Hamburger Toggle */}
-          <div className="flex sm:hidden items-center gap-2">
-            {onOpenTerminal && (
-              <button
-                onClick={onOpenTerminal}
-                className="p-2 rounded-lg bg-brand-surface border border-brand-border text-brand-accent"
-                aria-label="Open Terminal"
-              >
-                <Terminal className="w-4 h-4" />
-              </button>
-            )}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-brand-surface border border-brand-border text-brand-muted hover:text-white"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 bg-brand-bg/95 backdrop-blur-xl sm:hidden pt-24 px-6 pb-10 flex flex-col justify-between overflow-y-auto">
-          <div className="flex flex-col gap-2">
-            <p className="text-[11px] uppercase font-mono tracking-widest text-brand-dim mb-2">
-              Navigation Menu
-            </p>
-            {navLinks.map((link) => (
               <a
-                key={link.id}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`py-2.5 px-4 rounded-xl text-base font-medium flex items-center justify-between border ${
-                  activeSection === link.id
-                    ? 'bg-brand-card text-brand-accent border-brand-accent/40'
-                    : 'text-brand-text/90 border-transparent hover:bg-brand-surface'
-                }`}
+                href="#contact"
+                onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+                className="hidden sm:flex items-center px-4 py-1.5 rounded-lg text-xs font-mono font-semibold text-brand-bg transition-all"
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #818CF8)' }}
               >
-                <span>{link.label}</span>
-                <span className="text-xs text-brand-dim font-mono">→</span>
+                HIRE ME
               </a>
-            ))}
-          </div>
 
-          <div className="pt-6 border-t border-brand-border/80 flex flex-col gap-3">
-            <a
-              href="#contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-3 rounded-xl bg-brand-accent text-brand-bg font-semibold text-sm shadow-cyan-soft"
-            >
-              Get in Touch
-            </a>
-            <p className="text-center text-xs text-brand-dim">
-              IAMGOKULVANAN © 2026 · Tech Meets Creativity
-            </p>
+              {/* Mobile menu toggle */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="lg:hidden p-2 rounded-lg border border-white/8 text-slate-400 hover:text-white transition-colors"
+                aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              >
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Mobile drawer */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:hidden overflow-hidden backdrop-blur-xl bg-[#080A0F]/95 border-t border-white/5"
+            >
+              <nav className="px-4 py-4 flex flex-col gap-1">
+                {NAV_ITEMS.map((item, i) => (
+                  <motion.a
+                    key={item.label}
+                    href={item.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                    className={`px-4 py-3 rounded-lg text-sm font-mono tracking-widest transition-colors ${
+                      activeSection === item.href.replace('#', '')
+                        ? 'text-sky-300 bg-sky-500/10'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {item.label}
+                  </motion.a>
+                ))}
+                <div className="pt-2 border-t border-white/5 mt-2">
+                  <a
+                    href="#contact"
+                    onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+                    className="block w-full text-center px-4 py-3 rounded-lg text-sm font-mono font-semibold text-brand-bg"
+                    style={{ background: 'linear-gradient(135deg, #38BDF8, #818CF8)' }}
+                  >
+                    LET'S CONNECT
+                  </a>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
     </>
   );
 };

@@ -1,125 +1,108 @@
 import React from 'react';
-import { ArrowUp, Github, Linkedin, Instagram, Film, MessageSquare, Heart } from 'lucide-react';
+import { Github, Linkedin, Instagram, Film, ArrowUp, Mail, ExternalLink } from 'lucide-react';
 import { contactDetails } from '../data/generalData';
 
+const footerLinks = [
+  { label: 'Home', href: '#home' },
+  { label: 'About', href: '#about' },
+  { label: 'Expertise', href: '#expertise' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Showreel', href: '#showreel' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Education', href: '#education' },
+  { label: 'Contact', href: '#contact' },
+];
+
 export const Footer: React.FC = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="border-t border-brand-border/60 bg-brand-surface/40 pt-16 pb-12 px-4 sm:px-6 lg:px-8 relative z-10">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-brand-border/60">
-          
-          {/* Brand Column */}
-          <div className="md:col-span-5 flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center font-display font-extrabold text-brand-accent tracking-tighter">
+    <footer className="relative border-t border-white/5 overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-sky-500/5 blur-3xl rounded-full" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 relative z-10">
+        {/* Top section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center font-display font-black text-sm text-brand-bg"
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #818CF8)' }}>
                 GV
               </div>
               <div>
-                <h4 className="font-display font-bold text-lg text-white tracking-wider">
-                  IAMGOKULVANAN
-                </h4>
-                <p className="text-[10px] font-mono uppercase tracking-widest text-brand-dim">
-                  Tech Meets Creativity
-                </p>
+                <p className="font-display font-black text-white tracking-wider text-sm">IAMGOKULVANAN</p>
+                <p className="text-xs font-mono text-sky-400/60">Technology × Creativity × Cinema</p>
               </div>
             </div>
-
-            <p className="text-xs sm:text-sm text-brand-muted max-w-sm leading-relaxed">
-              Global personal brand platform of Gokul Vanan. Engineering digital systems, designing thoughtful interfaces, and producing cinematic visual stories.
+            <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
+              Building digital experiences through technology, design, and cinematic storytelling.
             </p>
+            <a href={`mailto:${contactDetails.email}`}
+              className="flex items-center gap-1.5 text-xs font-mono text-sky-400/60 hover:text-sky-300 transition-colors mt-3">
+              <Mail className="w-3 h-3" />
+              {contactDetails.email}
+            </a>
+          </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <a
-                href={contactDetails.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-brand-card border border-brand-border text-brand-muted hover:text-brand-accent transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-              <a
-                href={contactDetails.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-brand-card border border-brand-border text-brand-muted hover:text-brand-accent transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href={contactDetails.instagramPersonal}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-brand-card border border-brand-border text-brand-muted hover:text-brand-accent transition-colors"
-                aria-label="Personal Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href={contactDetails.instagramStudio}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-brand-card border border-brand-border text-brand-muted hover:text-amber-400 transition-colors"
-                aria-label="Minion Visuals Studio"
-              >
-                <Film className="w-4 h-4" />
-              </a>
+          {/* Nav links */}
+          <div>
+            <p className="text-xs font-mono text-slate-500 tracking-widest uppercase mb-4">Navigation</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {footerLinks.map((link) => (
+                <a key={link.label} href={link.href}
+                  onClick={(e) => { e.preventDefault(); document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className="text-sm text-slate-500 hover:text-white transition-colors">
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Navigation Links */}
-          <div className="md:col-span-3 flex flex-col gap-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-white font-semibold">
-              Platform Architecture
-            </span>
-            <ul className="space-y-2 text-xs text-brand-muted">
-              <li><a href="#about" className="hover:text-brand-accent transition-colors">01. About Gokul Vanan</a></li>
-              <li><a href="#pillars" className="hover:text-brand-accent transition-colors">02. The 5 Core Pillars</a></li>
-              <li><a href="#tech" className="hover:text-brand-accent transition-colors">03. Technology & Dev Stack</a></li>
-              <li><a href="#uiux" className="hover:text-brand-accent transition-colors">04. UI/UX Product Design</a></li>
-              <li><a href="#ai" className="hover:text-brand-accent transition-colors">05. AI & Innovation Lab</a></li>
-              <li><a href="#studio" className="hover:text-brand-accent transition-colors">06. Cinematic Video Studio</a></li>
-            </ul>
-          </div>
-
-          {/* Additional Links & Actions */}
-          <div className="md:col-span-4 flex flex-col justify-between gap-4">
-            <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-white font-semibold block mb-3">
-                Selected Works & Verification
-              </span>
-              <ul className="space-y-2 text-xs text-brand-muted">
-                <li><a href="#projects" className="hover:text-brand-accent transition-colors">Projects & Case Studies</a></li>
-                <li><a href="#certificates" className="hover:text-brand-accent transition-colors">16 Verified Certificates</a></li>
-                <li><a href="#services" className="hover:text-brand-accent transition-colors">Services & Collaboration</a></li>
-                <li><a href="#resume" className="hover:text-brand-accent transition-colors">Resume & Credential Summary</a></li>
-              </ul>
+          {/* Studio & socials */}
+          <div>
+            <p className="text-xs font-mono text-slate-500 tracking-widest uppercase mb-4">Connect</p>
+            <div className="space-y-3">
+              <a href={contactDetails.githubUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-white transition-colors">
+                <Github className="w-4 h-4" /> github.com/iamgokulvanan
+              </a>
+              <a href={contactDetails.linkedinUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-sky-300 transition-colors">
+                <Linkedin className="w-4 h-4" /> linkedin.com/in/iamgokulvanan
+              </a>
+              <a href={contactDetails.instagramPersonal} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-pink-300 transition-colors">
+                <Instagram className="w-4 h-4" /> @iamgokulvanan
+              </a>
+              <a href={contactDetails.instagramStudio} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-orange-300 transition-colors">
+                <Film className="w-4 h-4" /> @minion.visuals
+              </a>
+              <a href={contactDetails.freelancerUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-emerald-300 transition-colors">
+                <ExternalLink className="w-4 h-4" /> freelancer.in/u/iamgokulvanan
+              </a>
             </div>
-
-            <button
-              onClick={scrollToTop}
-              className="w-fit px-4 py-2 rounded-xl bg-brand-card border border-brand-border hover:border-brand-accent/50 text-xs font-mono text-brand-accent flex items-center gap-2 transition-colors"
-            >
-              <ArrowUp className="w-3.5 h-3.5" />
-              <span>Back to Top (Scroll)</span>
-            </button>
           </div>
-
         </div>
 
-        {/* Bottom Credits & Authenticity Disclaimer */}
-        <div className="pt-8 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-brand-dim gap-4">
-          <p className="font-mono">
-            © 2026 Gokul Vanan (IAMGOKULVANAN) · Coimbatore, Tamil Nadu, India.
+        {/* Bottom bar */}
+        <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs font-mono text-slate-600">
+            © {new Date().getFullYear()} IAMGOKULVANAN — Gokul Vanan. All rights reserved.
           </p>
-          <p className="flex items-center gap-1 font-mono text-[11px]">
-            <span>Engineered with React 18, TypeScript & Tailwind CSS</span>
-          </p>
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-mono text-slate-700">B.Tech IT · HICET 2024–28 · Tamil Nadu, India</span>
+            <button onClick={scrollToTop}
+              className="p-2 rounded-xl border border-white/8 text-slate-500 hover:text-white hover:border-white/20 transition-all"
+              aria-label="Back to top">
+              <ArrowUp className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>

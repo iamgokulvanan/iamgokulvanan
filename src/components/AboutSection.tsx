@@ -1,168 +1,193 @@
-import React from 'react';
-import { 
-  User, 
-  Target, 
-  Lightbulb, 
-  Compass, 
-  CheckCircle, 
-  MapPin, 
-  GraduationCap, 
-  Sparkles,
-  Award
-} from 'lucide-react';
-import { contactDetails } from '../data/generalData';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { MapPin, GraduationCap, Sparkles, Heart } from 'lucide-react';
+
+const FadeUp: React.FC<{ children: React.ReactNode; delay?: number; className?: string }> = ({
+  children,
+  delay = 0,
+  className = '',
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const interests = [
+  { icon: '🎬', label: 'Cinematography', desc: 'Visual storytelling through lens and light' },
+  { icon: '🎵', label: 'Music & Audio', desc: 'Cinematic scores and sound design' },
+  { icon: '💻', label: 'Tech Exploration', desc: 'AI, dev tools, modern frameworks' },
+  { icon: '🎮', label: 'Gaming & UX', desc: 'Interactive worlds and HUD design' },
+  { icon: '📐', label: 'UI/UX Design', desc: 'Figma systems and interface architecture' },
+  { icon: '✍️', label: 'Creative Writing', desc: 'Scripts, story beats, narratives' },
+];
 
 export const AboutSection: React.FC = () => {
-  const cards = [
-    {
-      title: 'Personal Profile',
-      icon: User,
-      color: '#38BDF8',
-      content: 'I am Gokul Vanan, based in Tamil Nadu, India. A persistent learner pursuing B.Tech in Information Technology with a strong appetite for engineering, multimedia production, and autonomous digital systems.'
-    },
-    {
-      title: 'Professional Interests',
-      icon: Target,
-      color: '#818CF8',
-      content: 'Spanning Full-Stack Web Development (React, Node.js, MongoDB), UI/UX wireframing & prototyping in Figma, AI Agent architectures, and high-retention video post-production.'
-    },
-    {
-      title: 'Creative Mindset',
-      icon: Lightbulb,
-      color: '#F472B6',
-      content: 'I believe code without design lacks emotion, and design without code remains static. Blending both with cinematic pacing creates memorable digital products that resonate.'
-    },
-    {
-      title: 'Career Objective',
-      icon: Compass,
-      color: '#34D399',
-      content: 'To build a successful career in the IT industry while continuously developing my technical, creative and problem-solving skills, contributing to impact-driven software and creative initiatives.'
-    }
-  ];
-
-  const interestsList = [
-    'Technology & Innovation',
-    'Web Application Development',
-    'Creative Problem-Solving',
-    'UI/UX & Digital Product Design',
-    'Video Editing & Filmmaking',
-    'Artificial Intelligence & RAG',
-    'Continuous Learning & Skill Mastery'
-  ];
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: '-100px' });
 
   return (
-    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 border-t border-brand-border/60 relative">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16">
-          <span className="text-xs font-mono uppercase tracking-widest text-brand-accent font-semibold px-3 py-1 rounded-full bg-brand-surface border border-brand-border mb-3">
-            Identity & Philosophy
-          </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            GET TO KNOW ME.
-          </h2>
-          <p className="text-base text-brand-muted max-w-2xl mt-4">
-            Curiosity-driven technologist building at the intersection of engineering logic and creative expression.
-          </p>
-        </div>
+    <section id="about" ref={sectionRef} className="relative py-28 overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-violet-500/5 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-sky-500/5 blur-3xl" />
+      </div>
 
-        {/* Top Story Block with Portrait */}
-        <div className="p-8 sm:p-12 rounded-3xl bg-brand-surface/70 border border-brand-border shadow-xl mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
-            {/* Portrait Thumbnail */}
-            <div className="lg:col-span-4 flex flex-col items-center">
-              <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-2xl overflow-hidden border-2 border-brand-border relative shadow-cyan-soft">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section label */}
+        <FadeUp className="mb-4">
+          <span className="font-mono text-xs tracking-[0.4em] text-sky-400/70 uppercase">
+            01 — ABOUT ME
+          </span>
+        </FadeUp>
+
+        <FadeUp delay={0.1} className="mb-16">
+          <h2 className="font-display font-black text-4xl sm:text-6xl xl:text-7xl text-white leading-[0.9] tracking-tight">
+            THE PERSON
+            <br />
+            <span className="text-transparent bg-clip-text" style={{
+              backgroundImage: 'linear-gradient(135deg, #38BDF8 0%, #818CF8 100%)'
+            }}>
+              BEHIND THE PIXELS.
+            </span>
+          </h2>
+        </FadeUp>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Left: Profile */}
+          <FadeUp delay={0.15} className="lg:col-span-4">
+            <div className="relative">
+              {/* Photo container */}
+              <div className="relative w-full max-w-sm mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden border border-white/8"
+                style={{ background: 'linear-gradient(145deg, rgba(56,189,248,0.08), rgba(129,140,248,0.05))' }}>
                 <img
                   src="/assets/profile.jpg"
-                  alt="Gokul Vanan portrait"
+                  alt="Gokul Vanan — IAMGOKULVANAN"
                   className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
+                {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-bg/80 via-transparent to-transparent" />
-                <div className="absolute bottom-2 left-2 right-2 px-2.5 py-1.5 rounded-lg bg-brand-surface/90 backdrop-blur-md border border-brand-border text-center">
-                  <span className="text-[11px] font-mono font-semibold text-brand-accent">
-                    Coimbatore, Tamil Nadu, India
-                  </span>
+
+                {/* Info card */}
+                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl backdrop-blur-md border border-white/10 bg-black/40">
+                  <p className="font-display font-bold text-white text-lg">Gokul Vanan</p>
+                  <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+                    <MapPin className="w-3 h-3 text-sky-400" />
+                    <span>Tamil Nadu, India</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+                    <GraduationCap className="w-3 h-3 text-violet-400" />
+                    <span>B.Tech IT · HICET · 2024–28</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-4 text-xs font-mono text-brand-muted">
-                <MapPin className="w-3.5 h-3.5 text-brand-accent" />
-                <span>HICET Coimbatore · B.Tech IT '28</span>
-              </div>
+              {/* Floating accent */}
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl border border-sky-500/20 bg-sky-500/5 backdrop-blur-sm flex items-center justify-center"
+              >
+                <Sparkles className="w-8 h-8 text-sky-400/60" />
+              </motion.div>
             </div>
+          </FadeUp>
 
-            {/* Story Text */}
-            <div className="lg:col-span-8 flex flex-col gap-5">
-              <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
-                "Hello, I'm Gokul Vanan."
-              </h3>
-              
-              <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
-                I'm passionate about technology, digital creativity and continuous learning. I enjoy exploring different areas of the digital world, from developing web applications and designing user interfaces to experimenting with AI tools and creating cinematic videos.
-              </p>
+          {/* Right: Story */}
+          <div className="lg:col-span-8 flex flex-col gap-8">
+            <FadeUp delay={0.2}>
+              <div className="space-y-5 text-slate-400 text-base sm:text-lg leading-relaxed">
+                <p>
+                  I'm{' '}
+                  <span className="text-white font-semibold">Gokul Vanan</span>, a technology enthusiast
+                  and creative individual passionate about exploring the intersection of{' '}
+                  <span className="text-sky-300">technology</span> and{' '}
+                  <span className="text-violet-300">visual storytelling</span>.
+                </p>
+                <p>
+                  I enjoy creating digital experiences through web development, UI/UX design, graphic
+                  design, video editing, and emerging technologies.
+                </p>
+                <p>
+                  I believe creativity and technology together can transform ordinary ideas into{' '}
+                  <span className="text-white font-medium">extraordinary experiences</span>.
+                </p>
+                <p>
+                  I'm continuously learning, experimenting, and improving my skills to build meaningful
+                  digital experiences.
+                </p>
+              </div>
+            </FadeUp>
 
-              <p className="text-sm sm:text-base text-brand-muted leading-relaxed">
-                Whether structuring MongoDB Atlas vector search pipelines, polishing responsive React layouts, or dialing in the color grade of a timeline in DaVinci Resolve, I treat every project as an opportunity to build experiences that are both functionally robust and visually captivating.
-              </p>
+            {/* Education card */}
+            <FadeUp delay={0.25}>
+              <div className="p-5 rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm">
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 shrink-0">
+                    <GraduationCap className="w-5 h-5 text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-mono text-slate-500 tracking-widest mb-1">EDUCATION</p>
+                    <h3 className="font-display font-bold text-white text-lg">
+                      B.Tech Information Technology
+                    </h3>
+                    <p className="text-slate-400 text-sm mt-0.5">
+                      Hindusthan College of Engineering and Technology
+                    </p>
+                    <p className="text-xs font-mono text-sky-400/70 mt-1">
+                      Coimbatore, Tamil Nadu · 2024–2028 · Currently Pursuing
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {['Cloud Computing (IIT)', 'MongoDB AI', 'Web Dev Internship', 'Full-Stack'].map((tag) => (
+                        <span key={tag} className="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </FadeUp>
 
-              {/* Interests Tags */}
-              <div className="pt-2">
-                <span className="text-xs font-mono uppercase tracking-widest text-brand-dim block mb-3">
-                  Core Fields of Interest:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {interestsList.map((interest) => (
-                    <span
-                      key={interest}
-                      className="px-3 py-1.5 rounded-full bg-brand-card border border-brand-border text-xs font-medium text-brand-text flex items-center gap-1.5"
+            {/* Interests */}
+            <FadeUp delay={0.3}>
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Heart className="w-4 h-4 text-pink-400" />
+                  <span className="text-xs font-mono text-slate-500 tracking-widest uppercase">Interests & Passions</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {interests.map((item, i) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={inView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ delay: 0.35 + i * 0.08, duration: 0.5 }}
+                      className="p-3 rounded-xl border border-white/5 bg-white/[0.02] hover:border-sky-500/20 hover:bg-sky-500/5 transition-all group cursor-default"
                     >
-                      <Sparkles className="w-3 h-3 text-brand-accent" />
-                      <span>{interest}</span>
-                    </span>
+                      <span className="text-xl block mb-1.5">{item.icon}</span>
+                      <p className="text-xs font-semibold text-white group-hover:text-sky-300 transition-colors">
+                        {item.label}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">{item.desc}</p>
+                    </motion.div>
                   ))}
                 </div>
               </div>
-            </div>
-
+            </FadeUp>
           </div>
         </div>
-
-        {/* 4 Information Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {cards.map((card) => {
-            const CardIcon = card.icon;
-            return (
-              <div
-                key={card.title}
-                className="p-6 sm:p-8 rounded-2xl bg-brand-surface/70 border border-brand-border hover:border-brand-accent/40 transition-all shadow-lg flex flex-col gap-4 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div 
-                    className="p-3 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center group-hover:scale-105 transition-transform"
-                    style={{ color: card.color }}
-                  >
-                    <CardIcon className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-mono tracking-widest uppercase text-brand-dim">
-                    IAMGOKULVANAN
-                  </span>
-                </div>
-
-                <h4 className="font-display text-lg sm:text-xl font-bold text-white">
-                  {card.title}
-                </h4>
-
-                <p className="text-sm text-brand-muted leading-relaxed">
-                  {card.content}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
       </div>
     </section>
   );

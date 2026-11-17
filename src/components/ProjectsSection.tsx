@@ -1,286 +1,365 @@
-import React, { useState } from 'react';
-import { 
-  FolderGit2, 
-  ExternalLink, 
-  Github, 
-  Sparkles, 
-  ArrowUpRight, 
-  X, 
-  CheckCircle2, 
-  Layers, 
-  Code2, 
-  Cpu, 
-  Film,
-  BadgeCheck
-} from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { Github, ExternalLink, X, ChevronRight, Code2, Film, Palette, Cpu } from 'lucide-react';
 import { projectsData } from '../data/projectsData';
-import { Project, ProjectCategory } from '../types/portfolio';
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  development: <Code2 className="w-3.5 h-3.5" />,
+  video: <Film className="w-3.5 h-3.5" />,
+  uiux: <Palette className="w-3.5 h-3.5" />,
+  ai: <Cpu className="w-3.5 h-3.5" />,
+};
+
+const categoryColors: Record<string, { accent: string; glow: string; badge: string }> = {
+  development: { accent: '#38BDF8', glow: 'rgba(56,189,248,0.12)', badge: 'bg-sky-500/10 text-sky-300 border-sky-500/20' },
+  uiux: { accent: '#818CF8', glow: 'rgba(129,140,248,0.12)', badge: 'bg-violet-500/10 text-violet-300 border-violet-500/20' },
+  ai: { accent: '#34D399', glow: 'rgba(52,211,153,0.12)', badge: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' },
+  video: { accent: '#FB923C', glow: 'rgba(251,146,60,0.12)', badge: 'bg-orange-500/10 text-orange-300 border-orange-500/20' },
+  graphic: { accent: '#F472B6', glow: 'rgba(244,114,182,0.12)', badge: 'bg-pink-500/10 text-pink-300 border-pink-500/20' },
+};
+
+const filters = ['ALL', 'DEVELOPMENT', 'UI/UX', 'AI', 'VIDEO'];
+const filterMap: Record<string, string | null> = {
+  ALL: null,
+  DEVELOPMENT: 'development',
+  'UI/UX': 'uiux',
+  AI: 'ai',
+  VIDEO: 'video',
+};
 
 export const ProjectsSection: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<ProjectCategory>('all');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
 
-  const filters: { id: ProjectCategory; label: string }[] = [
-    { id: 'all', label: 'All Works' },
-    { id: 'development', label: 'Development' },
-    { id: 'uiux', label: 'UI/UX Design' },
-    { id: 'ai', label: 'AI & Innovation' },
-    { id: 'video', label: 'Video Studio' },
-  ];
+  const filterValue = filterMap[activeFilter];
+  const filtered = filterValue
+    ? projectsData.filter((p) => p.category === filterValue)
+    : projectsData;
 
-  const filteredProjects = activeFilter === 'all'
-    ? projectsData
-    : projectsData.filter((p) => p.category === activeFilter);
+  const selectedProject = projectsData.find((p) => p.id === selectedId);
 
   return (
-    <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8 border-t border-brand-border/60 relative">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16">
-          <span className="text-xs font-mono uppercase tracking-widest text-brand-accent font-semibold px-3 py-1 rounded-full bg-brand-surface border border-brand-border mb-3">
-            Portfolio Showcase
-          </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            SELECTED WORKS.
-          </h2>
-          <p className="text-base text-brand-muted max-w-2xl mt-4">
-            Curated initiatives spanning web applications, AI triage prototypes, creator tools, and cinematic reels.
-          </p>
-        </div>
-
-        {/* Category Filters */}
-        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-4 mb-12 no-scrollbar">
-          {filters.map((filter) => (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`px-5 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border ${
-                activeFilter === filter.id
-                  ? 'bg-brand-card text-brand-accent border-brand-accent shadow-cyan-soft'
-                  : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-borderLight hover:text-white'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Project Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
-            <div
-              key={project.id}
-              onClick={() => setSelectedProject(project)}
-              className="group cursor-pointer rounded-3xl bg-brand-surface/80 border border-brand-border hover:border-brand-accent/50 transition-all duration-300 hover:-translate-y-1.5 shadow-xl flex flex-col justify-between overflow-hidden"
-            >
-              {/* Card Banner */}
-              <div className="p-6 border-b border-brand-border/60 bg-gradient-to-br from-brand-card to-brand-surface relative overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-brand-surface border border-brand-border text-brand-accent font-semibold">
-                    {project.categoryLabel}
-                  </span>
-                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    {project.status}
-                  </span>
-                </div>
-
-                <h3 className="font-display text-xl font-bold text-white group-hover:text-brand-accent transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-xs text-brand-muted font-light mt-1 line-clamp-2">
-                  "{project.tagline}"
-                </p>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-6 flex flex-col justify-between flex-1 gap-6">
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                  {project.description}
-                </p>
-
-                {/* Tech Badges */}
-                <div>
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {project.technologies.slice(0, 4).map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2.5 py-1 rounded-md bg-brand-card border border-brand-border text-[11px] font-mono text-brand-dim"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {project.technologies.length > 4 && (
-                      <span className="px-2 py-1 rounded-md bg-brand-card text-[11px] font-mono text-brand-dim">
-                        +{project.technologies.length - 4}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="pt-4 border-t border-brand-border/50 flex items-center justify-between text-xs font-semibold text-brand-accent">
-                    <span>Explore Case Study</span>
-                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
+    <section id="projects" className="relative py-28 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-brand-bg to-transparent" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-sky-500/4 blur-3xl" />
       </div>
 
-      {/* Case Study Modal Drawer */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md">
-          <div className="w-full max-w-3xl rounded-3xl bg-brand-surface border border-brand-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            
-            {/* Modal Header */}
-            <div className="px-6 sm:px-8 py-5 bg-brand-card border-b border-brand-border flex items-center justify-between sticky top-0 z-20">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-mono font-bold text-brand-accent px-2.5 py-1 rounded bg-brand-surface border border-brand-border">
-                  {selectedProject.categoryLabel}
-                </span>
-                <span className="text-xs font-mono text-brand-dim">
-                  Status: {selectedProject.status}
-                </span>
-              </div>
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="p-1.5 rounded-lg text-brand-muted hover:text-white hover:bg-brand-surface transition-colors"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Content Scroll Area */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-8">
-              
-              {/* Title & Tagline */}
-              <div>
-                <h3 className="font-display text-2xl sm:text-4xl font-extrabold text-white">
-                  {selectedProject.title}
-                </h3>
-                <p className="text-sm sm:text-base text-brand-accent font-light mt-1">
-                  "{selectedProject.tagline}"
-                </p>
-                <p className="text-xs font-mono text-brand-dim mt-2">
-                  Role: {selectedProject.role}
-                </p>
-              </div>
-
-              {/* 1. Project Overview */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-brand-dim">
-                  01. Project Overview
-                </h4>
-                <p className="text-sm text-slate-200 leading-relaxed">
-                  {selectedProject.description}
-                </p>
-              </div>
-
-              {/* 2. Problem Statement */}
-              <div className="p-5 rounded-2xl bg-brand-card border border-rose-500/20 space-y-2">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-rose-400 font-bold">
-                  02. Problem Being Addressed
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {selectedProject.problem}
-                </p>
-              </div>
-
-              {/* 3. The Engineered Solution */}
-              <div className="p-5 rounded-2xl bg-brand-card border border-emerald-500/20 space-y-2">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">
-                  03. The Engineered Solution
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {selectedProject.solution}
-                </p>
-              </div>
-
-              {/* 4. Key Architectural Features */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-brand-dim">
-                  04. Key Functional Features
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {selectedProject.keyFeatures.map((feat, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-brand-card border border-brand-border flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-brand-accent shrink-0 mt-0.5" />
-                      <span className="text-xs text-slate-200 leading-relaxed">{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 5. Technologies Used */}
-              <div className="space-y-2.5">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-brand-dim">
-                  05. Technology Stack
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.technologies.map((t) => (
-                    <span
-                      key={t}
-                      className="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-200"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* 6. Outcome & Future Roadmap */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-mono uppercase tracking-widest text-brand-dim">
-                  06. Project Outcome
-                </h4>
-                <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                  {selectedProject.outcome}
-                </p>
-              </div>
-
-            </div>
-
-            {/* Modal Actions Footer */}
-            <div className="px-6 sm:px-8 py-4 bg-brand-card border-t border-brand-border flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                {selectedProject.githubUrl && (
-                  <a
-                    href={selectedProject.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-accent/50 text-white text-xs font-semibold flex items-center gap-2 transition-colors"
-                  >
-                    <Github className="w-4 h-4" />
-                    <span>View Repository</span>
-                  </a>
-                )}
-                {selectedProject.liveUrl && (
-                  <a
-                    href={selectedProject.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-brand-accent hover:bg-sky-300 text-brand-bg text-xs font-semibold flex items-center gap-2 transition-all shadow-cyan-soft"
-                  >
-                    <span>Visit Live Link</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-              </div>
-
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="text-xs font-mono text-brand-muted hover:text-white"
-              >
-                Close Case Study
-              </button>
-            </div>
-
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div ref={ref} className="mb-14">
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            className="font-mono text-xs tracking-[0.4em] text-sky-400/70 uppercase block mb-4"
+          >
+            03 — PROJECTS
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="font-display font-black text-4xl sm:text-6xl xl:text-7xl text-white leading-[0.9] tracking-tight"
+          >
+            SELECTED
+            <br />
+            <span className="text-transparent bg-clip-text" style={{
+              backgroundImage: 'linear-gradient(135deg, #38BDF8 0%, #818CF8 100%)'
+            }}>
+              WORKS.
+            </span>
+          </motion.h2>
         </div>
-      )}
+
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.2 }}
+          className="flex flex-wrap gap-2 mb-10"
+        >
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setActiveFilter(f)}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-semibold tracking-wider border transition-all duration-200 ${
+                activeFilter === f
+                  ? 'bg-sky-500 border-sky-500 text-brand-bg'
+                  : 'border-white/8 text-slate-400 hover:text-white hover:border-white/20'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Projects grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((project, i) => {
+              const colors = categoryColors[project.category] || categoryColors.development;
+              return (
+                <motion.article
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                  onClick={() => setSelectedId(project.id)}
+                  className="relative group cursor-pointer rounded-2xl border border-white/5 bg-white/[0.02] hover:border-opacity-100 overflow-hidden transition-all duration-500"
+                  style={{
+                    ['--hover-border' as string]: `${colors.accent}30`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = `${colors.accent}25`;
+                    e.currentTarget.style.background = `radial-gradient(ellipse at 0% 0%, ${colors.glow}, rgba(8,10,15,0))`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                  }}
+                >
+                  {/* Visual cover */}
+                  <div
+                    className="h-44 relative overflow-hidden"
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.accent}20, ${colors.accent}08, rgba(8,10,15,0.9))`,
+                    }}
+                  >
+                    {/* Pattern overlay */}
+                    <div className="absolute inset-0 opacity-20"
+                      style={{
+                        backgroundImage: `repeating-linear-gradient(45deg, ${colors.accent}10 0, ${colors.accent}10 1px, transparent 0, transparent 50%)`,
+                        backgroundSize: '12px 12px',
+                      }}
+                    />
+
+                    {/* Category icon */}
+                    <div className="absolute top-4 left-4">
+                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border ${colors.badge}`}>
+                        {categoryIcons[project.category]}
+                        {project.categoryLabel}
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="absolute top-4 right-4">
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                        project.status === 'Completed'
+                          ? 'bg-emerald-500/15 border-emerald-500/25 text-emerald-300'
+                          : 'bg-amber-500/15 border-amber-500/25 text-amber-300'
+                      }`}>
+                        {project.status}
+                      </span>
+                    </div>
+
+                    {/* Large number watermark */}
+                    <div
+                      className="absolute bottom-2 right-4 font-display font-black text-6xl opacity-10 select-none"
+                      style={{ color: colors.accent }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="font-display font-bold text-lg text-white mb-1 group-hover:text-sky-200 transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-mono mb-3">{project.tagline}</p>
+                    <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-4">
+                      {project.description}
+                    </p>
+
+                    {/* Tech tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {project.technologies.slice(0, 4).map((t) => (
+                        <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-slate-500">
+                          {t}
+                        </span>
+                      ))}
+                      {project.technologies.length > 4 && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-slate-500">
+                          +{project.technologies.length - 4}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                      <div className="flex items-center gap-2">
+                        {project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors"
+                            aria-label="GitHub"
+                          >
+                            <Github className="w-4 h-4" />
+                          </a>
+                        )}
+                        {project.liveUrl && project.liveUrl !== '#' && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-sky-300 transition-colors"
+                            aria-label="Live Demo"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                      <button
+                        className="flex items-center gap-1 text-xs font-mono transition-colors"
+                        style={{ color: colors.accent }}
+                      >
+                        VIEW DETAILS
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Detail modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedId(null)}
+              className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200]"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 32 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 32 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-4 sm:inset-8 lg:inset-16 z-[201] overflow-y-auto"
+            >
+              <div className="min-h-full rounded-2xl border border-white/10 bg-[#080A0F]/98 backdrop-blur-xl p-6 sm:p-8">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border mb-3 ${
+                      categoryColors[selectedProject.category]?.badge || ''
+                    }`}>
+                      {categoryIcons[selectedProject.category]}
+                      {selectedProject.categoryLabel}
+                    </span>
+                    <h2 className="font-display font-black text-2xl sm:text-4xl text-white">
+                      {selectedProject.title}
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-1 font-mono">{selectedProject.tagline}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedId(null)}
+                    className="p-2 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-colors shrink-0 ml-4"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div>
+                      <h4 className="text-xs font-mono text-slate-500 tracking-widest mb-2 uppercase">Overview</h4>
+                      <p className="text-slate-300 leading-relaxed">{selectedProject.description}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-mono text-slate-500 tracking-widest mb-2 uppercase">The Problem</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm">{selectedProject.problem}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-mono text-slate-500 tracking-widest mb-2 uppercase">The Solution</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm">{selectedProject.solution}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-mono text-slate-500 tracking-widest mb-2 uppercase">Key Features</h4>
+                      <ul className="space-y-2">
+                        {selectedProject.keyFeatures.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ background: categoryColors[selectedProject.category]?.accent }} />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="space-y-5">
+                    <div className="p-4 rounded-xl border border-white/8 bg-white/[0.02]">
+                      <p className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-widest">Details</p>
+                      <div className="space-y-2.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Role</span>
+                          <span className="text-white text-right text-xs">{selectedProject.role}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Status</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            selectedProject.status === 'Completed'
+                              ? 'bg-emerald-500/15 text-emerald-300'
+                              : 'bg-amber-500/15 text-amber-300'
+                          }`}>{selectedProject.status}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-white/8 bg-white/[0.02]">
+                      <p className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-widest">Technologies</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedProject.technologies.map((t) => (
+                          <span key={t} className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-white/5 border border-white/8 text-slate-300">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-white/8 bg-white/[0.02]">
+                      <p className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-widest">Outcome</p>
+                      <p className="text-sm text-slate-300 leading-relaxed">{selectedProject.outcome}</p>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      {selectedProject.githubUrl && (
+                        <a href={selectedProject.githubUrl} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/10 text-sm font-mono text-slate-300 hover:text-white hover:border-white/20 transition-all">
+                          <Github className="w-4 h-4" /> View on GitHub
+                        </a>
+                      )}
+                      {selectedProject.liveUrl && selectedProject.liveUrl !== '#' && (
+                        <a href={selectedProject.liveUrl} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-mono text-brand-bg font-semibold transition-all"
+                          style={{ background: 'linear-gradient(135deg, #38BDF8, #818CF8)' }}>
+                          <ExternalLink className="w-4 h-4" /> Live Demo
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
